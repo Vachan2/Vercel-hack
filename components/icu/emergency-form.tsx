@@ -7,9 +7,34 @@ import { Spinner } from "@/components/ui/spinner"
 export type FormData = {
   age: string
   emergencyType: string
-  severity: string
+  severity: string   // "1" | "2" | "3" | "4" | "5"
   location: string
   description: string
+}
+
+/** Maps the UI emergency type label to a slug used by the API */
+export function toEmergencyTypeSlug(label: string): string {
+  const map: Record<string, string> = {
+    "Cardiac Arrest": "cardiac",
+    "Stroke": "neurology",
+    "Respiratory Failure": "general",
+    "Trauma / Injury": "trauma",
+    "Sepsis": "general",
+    "Neurological Emergency": "neurology",
+    "Burns": "burns",
+    "Multi-organ Failure": "general",
+    "Poisoning / Overdose": "general",
+    "Post-Surgical Complication": "general",
+  }
+  return map[label] ?? label.toLowerCase().replace(/\s+/g, "-")
+}
+
+/** Maps the 1-5 severity level to the PatientInput severity union */
+export function toSeverityLevel(v: string): "low" | "medium" | "high" | "critical" {
+  if (v === "1") return "critical"
+  if (v === "2") return "high"
+  if (v === "3") return "medium"
+  return "low"
 }
 
 type Props = {
@@ -39,14 +64,16 @@ const SEVERITY_LEVELS = [
 ]
 
 const LOCATIONS = [
-  "Downtown",
-  "North District",
-  "South District",
-  "East Suburb",
-  "West Suburb",
-  "Central Medical Zone",
-  "Airport Corridor",
-  "Industrial Quarter",
+  "Whitefield",
+  "Koramangala",
+  "Jayanagar",
+  "Hebbal",
+  "Indiranagar",
+  "Electronic City",
+  "Rajajinagar",
+  "Malleshwaram",
+  "MG Road",
+  "Brigade Road",
 ]
 
 export function EmergencyForm({ onSubmit, loading }: Props) {
@@ -182,7 +209,7 @@ export function EmergencyForm({ onSubmit, loading }: Props) {
               style={{ color: form.location ? "oklch(0.9 0.02 210)" : "oklch(0.45 0.04 220)" }}
             >
               <option value="" disabled style={{ background: "oklch(0.12 0.02 230)", color: "oklch(0.55 0.06 220)" }}>
-                Select district
+                Select locality
               </option>
               {LOCATIONS.map((l) => (
                 <option key={l} value={l} style={{ background: "oklch(0.12 0.02 230)", color: "oklch(0.9 0.02 210)" }}>

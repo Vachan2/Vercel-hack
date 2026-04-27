@@ -2,89 +2,79 @@
 
 import { useState } from "react"
 import { TopNav } from "@/components/icu/top-nav"
-import { EmergencyForm, type FormData } from "@/components/icu/emergency-form"
-import { HospitalCards, type Hospital } from "@/components/icu/hospital-cards"
+import { EmergencyForm, type FormData, toEmergencyTypeSlug, toSeverityLevel } from "@/components/icu/emergency-form"
+import { HospitalCards } from "@/components/icu/hospital-cards"
 import { AITimeline } from "@/components/icu/ai-timeline"
 import { BottomStats } from "@/components/icu/bottom-stats"
-
-// Simulated AI routing result generator
-function generateHospitals(form: FormData): Hospital[] {
-  const sev = parseInt(form.severity)
-
-  const pool: Omit<Hospital, "rank" | "confidence" | "priority">[] = [
-    {
-      name: "Metro General ICU",
-      icuBeds: 18,
-      totalBeds: 24,
-      eta: "6 min",
-      specialty: "Cardiac",
-      distance: "3.2 km",
-    },
-    {
-      name: "St. Raphael Critical Care",
-      icuBeds: 12,
-      totalBeds: 20,
-      eta: "9 min",
-      specialty: "Trauma",
-      distance: "5.1 km",
-    },
-    {
-      name: "Northside Medical Center",
-      icuBeds: 7,
-      totalBeds: 14,
-      eta: "11 min",
-      specialty: "Neuro",
-      distance: "7.8 km",
-    },
-    {
-      name: "Eastbrook University Hospital",
-      icuBeds: 22,
-      totalBeds: 30,
-      eta: "14 min",
-      specialty: "Multi-organ",
-      distance: "9.4 km",
-    },
-    {
-      name: "Lakeview Trauma Center",
-      icuBeds: 5,
-      totalBeds: 10,
-      eta: "17 min",
-      specialty: "Burns",
-      distance: "12.1 km",
-    },
-  ]
-
-  const baseConfidences = [97, 88, 76, 64, 51]
-  const sev_boost = (5 - sev) * 1.5
-
-  const priorities: Hospital["priority"][] = ["critical", "high", "medium", "low", "low"]
-
-  return pool.map((h, i) => ({
-    ...h,
-    rank: i + 1,
-    confidence: Math.min(99, Math.round(baseConfidences[i] + sev_boost * (i === 0 ? 1 : 0.4))),
-    priority: priorities[i],
-  }))
-}
+import type { ScoredHospital, RecommendationResponse, AgentStep } from "@/lib/types"
+import { Brain, Zap } from "lucide-react"
 
 export default function ICUDashboard() {
   const [loading, setLoading] = useState(false)
   const [analyzed, setAnalyzed] = useState(false)
-  const [hospitals, setHospitals] = useState<Hospital[]>([])
+  const [hospitals, setHospitals] = useState<ScoredHospital[]>([])
   const [formData, setFormData] = useState<FormData | null>(null)
+  const [confidence, setConfidence] = useState<number | undefined>()
+  const [workflow, setWorkflow] = useState<string[] | undefined>()
+  const [explanation, setExplanation] = useState<string | undefined>()
+  const [error, setError] = useState<string | null>(null)
+  const [agenticMode, setAgenticMode] = useState(true)
+  const [agentSteps, setAgentSteps] = useState<AgentStep[] | undefined>()
+  const [isAgenticResult, setIsAgenticResult] = useState(false)
 
   const handleAnalyze = async (data: FormData) => {
     setFormData(data)
     setLoading(true)
     setAnalyzed(false)
     setHospitals([])
+    setError(null)
+    setConfidence(undefined)
+    setWorkflow(undefined)
+    setExplanation(undefined)
+    setAgentSteps(undefined)
+    setIsAgenticResult(false)
 
-    // Simulate AI processing delay
-    await new Promise((res) => setTimeout(res, 4200))
+    try {
+      const body = {
+        age: parseInt(data.age, 10),
+        severity: toSeverityLevel(data.severity),
+        emergencyType: toEmergencyTypeSlug(data.emergencyType),
+        location: data.location,
+        symptoms: data.description
+          ? data.description.split(/[,.\n]+/).map((s) => s.trim()).filter(Boolean)
+          : [data.emergencyType],
+      }
 
-    setHospitals(generateHospitals(data))
-    setLoading(false)
-    setAnalyzed(true)
+      const endpoint = agenticMode ? "/api/recommend/agentic" : "/api/recommend"
+
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      })
+
+      const json: RecommendationResponse | { error: string } = await res.json()
+
+      if (!res.ok || "error" in json) {
+        const msg = "error" in json ? json.error : `HTTP ${res.status}`
+        setError(msg)
+        setLoading(false)
+        return
+      }
+
+      const result = json as RecommendationResponse
+      setHospitals(result.rankedHospitals)
+      setConfidence(result.confidence)
+      setWorkflow(result.workflow)
+      setExplanation(result.explanation)
+      setAgentSteps(result.agentSteps)
+      setIsAgenticResult(result.agenticMode ?? false)
+      setAnalyzed(true)
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Unexpected error")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -95,7 +85,6 @@ export default function ICUDashboard() {
       {/* Subtle scan-line overlay */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <div className="absolute inset-0 scan-line" style={{ height: "30%" }} />
-        {/* Grid dot pattern */}
         <div
           className="absolute inset-0"
           style={{
@@ -111,6 +100,51 @@ export default function ICUDashboard() {
         <TopNav />
       </div>
 
+      {/* Agentic mode toggle bar */}
+      <div
+        className="relative z-10 flex items-center justify-between px-6 py-2 border-b"
+        style={{
+          background: "oklch(0.1 0.018 235 / 0.9)",
+          borderColor: "oklch(0.55 0.14 210 / 0.15)",
+        }}
+      >
+        <div className="flex items-center gap-2">
+          <Brain className="w-3.5 h-3.5" style={{ color: "oklch(0.78 0.18 195)" }} />
+          <span className="text-xs font-semibold tracking-widest uppercase" style={{ color: "oklch(0.78 0.18 195)", fontFamily: "var(--font-space-grotesk)" }}>
+            Agentic Mode
+          </span>
+          <span className="text-xs hidden sm:inline" style={{ color: "oklch(0.45 0.04 225)" }}>
+            — Web scraping + Mistral LLM scoring
+          </span>
+        </div>
+        <button
+          onClick={() => setAgenticMode((v) => !v)}
+          className="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold transition-all duration-200"
+          style={{
+            background: agenticMode ? "oklch(0.65 0.18 210 / 0.15)" : "oklch(0.16 0.025 230)",
+            border: `1px solid ${agenticMode ? "oklch(0.65 0.18 210 / 0.5)" : "oklch(0.25 0.03 230)"}`,
+            color: agenticMode ? "oklch(0.78 0.18 195)" : "oklch(0.45 0.04 225)",
+          }}
+        >
+          <Zap className="w-3 h-3" />
+          {agenticMode ? "ON" : "OFF"}
+        </button>
+      </div>
+
+      {/* Error banner */}
+      {error && (
+        <div
+          className="relative z-10 mx-6 mt-3 px-4 py-3 rounded-xl text-sm animate-slide-in-up"
+          style={{
+            background: "oklch(0.55 0.22 25 / 0.12)",
+            border: "1px solid oklch(0.55 0.22 25 / 0.4)",
+            color: "oklch(0.75 0.18 25)",
+          }}
+        >
+          <strong>Error:</strong> {error}
+        </div>
+      )}
+
       {/* Main 3-column layout */}
       <main className="relative z-10 flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-[320px_1fr_280px] xl:grid-cols-[340px_1fr_300px]">
         {/* Left — Emergency Form */}
@@ -123,7 +157,14 @@ export default function ICUDashboard() {
 
         {/* Center — Hospital Recommendations */}
         <div className="overflow-hidden flex flex-col">
-          <HospitalCards hospitals={hospitals} loading={loading} analyzed={analyzed} />
+          <HospitalCards
+            hospitals={hospitals}
+            loading={loading}
+            analyzed={analyzed}
+            confidence={confidence}
+            explanation={explanation}
+            agenticMode={isAgenticResult}
+          />
         </div>
 
         {/* Right — AI Reasoning Timeline */}
@@ -137,6 +178,8 @@ export default function ICUDashboard() {
             severity={formData?.severity}
             emergencyType={formData?.emergencyType}
             location={formData?.location}
+            workflow={workflow}
+            agentSteps={agentSteps}
           />
         </div>
       </main>
