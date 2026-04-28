@@ -110,7 +110,7 @@ export function AITimeline({ loading, analyzed, severity, emergencyType, locatio
             AI Reasoning
           </span>
         </div>
-        <p className="text-xs" style={{ color: "oklch(0.5 0.06 220)" }}>
+        <p className="text-xs" style={{ color: "oklch(0.65 0.08 220)" }}>
           Live decision workflow trace
         </p>
       </div>
@@ -175,7 +175,7 @@ export function AITimeline({ loading, analyzed, severity, emergencyType, locatio
                     style={{
                       color:
                         status === "done"
-                          ? "oklch(0.9 0.015 210)"
+                          ? "oklch(0.98 0 0)"
                           : status === "running"
                             ? "oklch(0.78 0.18 195)"
                             : "oklch(0.4 0.04 225)",

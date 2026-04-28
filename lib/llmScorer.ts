@@ -134,8 +134,8 @@ Rules:
 }
 
 /**
- * Scores all hospitals in parallel (with a concurrency cap of 3
- * to avoid rate-limiting on free Mistral tiers).
+ * Scores all hospitals in parallel (with a concurrency cap of 5
+ * to avoid rate-limiting while maintaining reasonable speed).
  */
 export async function llmScoreAllHospitals(
   hospitals: Hospital[],
@@ -143,7 +143,7 @@ export async function llmScoreAllHospitals(
   webContexts: HospitalWebContext[],
   deterministicScores: number[],
 ): Promise<LLMScoredHospital[]> {
-  const CONCURRENCY = 3;
+  const CONCURRENCY = 5; // Increased from 3 to 5 for faster processing
   const results: LLMScoredHospital[] = [];
 
   for (let i = 0; i < hospitals.length; i += CONCURRENCY) {

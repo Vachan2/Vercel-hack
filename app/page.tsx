@@ -113,7 +113,7 @@ export default function ICUDashboard() {
           <span className="text-xs font-semibold tracking-widest uppercase" style={{ color: "oklch(0.78 0.18 195)", fontFamily: "var(--font-space-grotesk)" }}>
             Agentic Mode
           </span>
-          <span className="text-xs hidden sm:inline" style={{ color: "oklch(0.45 0.04 225)" }}>
+          <span className="text-xs hidden sm:inline" style={{ color: "oklch(0.65 0.08 220)" }}>
             — Web scraping + Mistral LLM scoring
           </span>
         </div>

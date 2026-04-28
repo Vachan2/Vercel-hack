@@ -15,6 +15,7 @@ import { estimateTrafficDelay } from './trafficEstimator';
 import { scoreHospital, rankHospitals } from './scoring';
 import { scrapeHospitalContext } from './webScraper';
 import { llmScoreAllHospitals } from './llmScorer';
+import { ETA_MATRIX } from './distanceCalculator';
 import type { Hospital, PatientInput, RecommendationResponse, ScoredHospital, AgentStep } from './types';
 
 export async function generateAgenticRecommendation(
@@ -24,11 +25,24 @@ export async function generateAgenticRecommendation(
 
   // ── Step 1: Filter available hospitals ──────────────────────────────
   const t0 = Date.now();
-  const candidates = filterAvailableHospitals(hospitals as AnalyticsHospital[], 90) as Hospital[];
+  let candidates = filterAvailableHospitals(hospitals as AnalyticsHospital[], 90) as Hospital[];
 
   if (candidates.length < 1) {
     throw new Error('No available ICU beds found in the hospital network');
   }
+
+  // Step 1.5 — Prioritize same-location hospitals
+  const sameLocationHospitals = candidates.filter(h => h.location === input.location);
+  const otherLocationHospitals = candidates.filter(h => h.location !== input.location);
+  
+  // If we have hospitals in the same location, prioritize them but keep others as backup
+  if (sameLocationHospitals.length > 0) {
+    candidates = [...sameLocationHospitals, ...otherLocationHospitals];
+  }
+
+  // OPTIMIZATION: Limit to top 15 candidates to reduce API calls and processing time
+  // This prevents 4+ minute response times when processing 100 hospitals
+  candidates = candidates.slice(0, 15);
 
   agentSteps.push({
     step: 'Hospital availability filtered',
@@ -40,6 +54,11 @@ export async function generateAgenticRecommendation(
   // ── Step 2: Deterministic enrichment (predict, ETA, risk, score) ────
   const t1 = Date.now();
   const deterministicScored: ScoredHospital[] = candidates.map((hospital) => {
+    // Calculate realistic ETA based on patient location
+    const patientLocation = input.location;
+    const hospitalLocation = hospital.location;
+    const baseETA = ETA_MATRIX[patientLocation]?.[hospitalLocation] || 30;
+
     const { projectedOccupancy } = predictHospitalLoad({
       currentOccupancy: hospital.occupancy,
       timeOfDay: new Date().getUTCHours(),
@@ -48,7 +67,7 @@ export async function generateAgenticRecommendation(
     });
 
     const { adjustedETA } = estimateTrafficDelay({
-      distance: hospital.eta,
+      distance: baseETA / 2, // Rough conversion: ETA in min to distance in km
       cityTrafficMultiplier: 1.3,
       emergencyUrgency: input.severity,
     });

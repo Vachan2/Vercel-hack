@@ -86,7 +86,7 @@ export function HospitalCards({ hospitals, loading, analyzed, confidence, explan
                 </span>
               )}
             </div>
-            <p className="text-xs" style={{ color: "oklch(0.5 0.06 220)" }}>
+            <p className="text-xs" style={{ color: "oklch(0.65 0.08 220)" }}>
               {agenticMode
                 ? "Web-grounded + Mistral LLM scored"
                 : "AI-ranked by availability, specialty & ETA"}
@@ -190,14 +190,14 @@ function HospitalCard({
           </div>
           <div>
             <h3
-              className="font-semibold text-sm leading-tight"
-              style={{ color: "oklch(0.93 0.015 210)", fontFamily: "var(--font-space-grotesk)" }}
+              className="font-semibold text-sm leading-tight text-[oklch(0.98_0_0)]"
+              style={{ fontFamily: "var(--font-space-grotesk)" }}
             >
               {h.name}
             </h3>
             <div className="flex items-center gap-1 mt-0.5">
-              <MapPin className="w-2.5 h-2.5" style={{ color: "oklch(0.5 0.06 220)" }} />
-              <span className="text-xs" style={{ color: "oklch(0.5 0.06 220)" }}>{h.location}</span>
+              <MapPin className="w-2.5 h-2.5 text-[oklch(0.70_0.04_220)]" />
+              <span className="text-xs text-[oklch(0.70_0.04_220)]">{h.location}</span>
               {h.webContextUsed && (
                 <span className="flex items-center gap-0.5 text-[10px]" style={{ color: "oklch(0.65 0.18 160)" }}>
                   <Globe className="w-2.5 h-2.5" />
@@ -277,7 +277,7 @@ function HospitalCard({
       {/* Risk score row */}
       <div className="mt-2 flex items-center gap-1.5">
         <ShieldAlert className="w-3 h-3" style={{ color: "oklch(0.5 0.06 220)" }} />
-        <span className="text-[10px]" style={{ color: "oklch(0.45 0.04 225)" }}>
+        <span className="text-[10px]" style={{ color: "oklch(0.60 0.06 220)" }}>
           Risk score: {Math.round(h.riskScore)} · Support level {h.emergencySupportLevel}
         </span>
       </div>
@@ -409,10 +409,10 @@ function EmptyState() {
         <Award className="w-8 h-8" style={{ color: "oklch(0.65 0.18 210 / 0.5)" }} />
       </div>
       <div>
-        <p className="text-sm font-medium mb-1" style={{ color: "oklch(0.6 0.06 220)" }}>
+        <p className="text-sm font-medium mb-1" style={{ color: "oklch(0.85 0.06 220)" }}>
           Awaiting Patient Data
         </p>
-        <p className="text-xs max-w-[200px]" style={{ color: "oklch(0.42 0.04 225)" }}>
+        <p className="text-xs max-w-[200px]" style={{ color: "oklch(0.65 0.08 220)" }}>
           Fill the intake form and click &ldquo;Analyze Emergency&rdquo; to receive AI recommendations
         </p>
       </div>

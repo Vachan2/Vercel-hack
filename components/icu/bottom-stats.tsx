@@ -95,11 +95,11 @@ function StatItem({ stat }: { stat: (typeof STATS)[0] }) {
         >
           {stat.value}
         </div>
-        <div className="text-[10px] truncate" style={{ color: "oklch(0.45 0.04 225)" }}>
+        <div className="text-[10px] truncate" style={{ color: "oklch(0.60 0.06 220)" }}>
           {stat.label}
         </div>
         {stat.sub && (
-          <div className="flex items-center gap-0.5 text-[10px]" style={{ color: "oklch(0.42 0.04 225)" }}>
+          <div className="flex items-center gap-0.5 text-[10px]" style={{ color: "oklch(0.58 0.06 220)" }}>
             {TrendIcon && (
               <TrendIcon
                 className="w-2.5 h-2.5"

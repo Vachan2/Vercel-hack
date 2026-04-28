@@ -46,13 +46,17 @@ export function scoreHospital(
   // --- Sub-score 5: Risk (lower risk is better) ---
   const riskScoreInverted = 100 - riskScore;
 
+  // --- Sub-score 6: Location Match (same location as patient gets bonus) ---
+  const locationMatchScore = hospital.location === patient.location ? 100 : 0;
+
   // --- Weighted composite score ---
   const rawScore =
-    icuAvailabilityScore * 0.25 +
-    specialtyMatchScore * 0.25 +
+    icuAvailabilityScore * 0.20 +
+    specialtyMatchScore * 0.20 +
     etaScore * 0.20 +
-    occupancyScore * 0.15 +
-    riskScoreInverted * 0.15;
+    occupancyScore * 0.10 +
+    riskScoreInverted * 0.10 +
+    locationMatchScore * 0.20; // 20% weight for same location
 
   // Clamp to [0, 100]
   const score = Math.min(Math.max(rawScore, 0), 100);

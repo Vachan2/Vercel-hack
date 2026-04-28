@@ -4,17 +4,34 @@ import { predictHospitalLoad } from './prediction';
 import { estimateTrafficDelay } from './trafficEstimator';
 import { scoreHospital, rankHospitals } from './scoring';
 import { Hospital, PatientInput, RecommendationResponse, ScoredHospital } from './types';
+import { ETA_MATRIX } from './distanceCalculator';
 
 export function generateRecommendation(input: PatientInput): RecommendationResponse {
   // Step 1 — Filter available hospitals (max 90% occupancy)
-  const candidates = filterAvailableHospitals(hospitals as AnalyticsHospital[], 90) as Hospital[];
+  let candidates = filterAvailableHospitals(hospitals as AnalyticsHospital[], 90) as Hospital[];
   if (candidates.length < 1) {
     throw new Error("No available ICU beds found in the hospital network");
   }
 
+  // Step 1.5 — Prioritize same-location hospitals, but include others
+  const sameLocationHospitals = candidates.filter(h => h.location === input.location);
+  const otherLocationHospitals = candidates.filter(h => h.location !== input.location);
+  
+  // If we have hospitals in the same location, prioritize them but keep others as backup
+  if (sameLocationHospitals.length > 0) {
+    candidates = [...sameLocationHospitals, ...otherLocationHospitals];
+  }
+
   // Steps 2–5: Enrich each candidate and score it
   const scoredCandidates: ScoredHospital[] = candidates.map((hospital) => {
-    // Step 2 — Predict demand
+    // Step 2 — Calculate realistic ETA based on patient location
+    const patientLocation = input.location;
+    const hospitalLocation = hospital.location;
+    
+    // Get ETA from pre-calculated matrix
+    const baseETA = ETA_MATRIX[patientLocation]?.[hospitalLocation] || 30;
+    
+    // Step 3 — Predict demand
     const { projectedOccupancy } = predictHospitalLoad({
       currentOccupancy: hospital.occupancy,
       timeOfDay: new Date().getUTCHours(),
@@ -22,21 +39,21 @@ export function generateRecommendation(input: PatientInput): RecommendationRespo
       emergencyCount: 1,
     });
 
-    // Step 3 — Compute adjusted ETA
+    // Step 4 — Compute adjusted ETA with traffic
     const { adjustedETA } = estimateTrafficDelay({
-      distance: hospital.eta, // hospital.eta km (base speed 60 km/h → eta_min = eta_km)
+      distance: baseETA / 2, // Rough conversion: ETA in min to distance in km
       cityTrafficMultiplier: 1.3,
       emergencyUrgency: input.severity,
     });
 
-    // Step 4 — Compute risk score
+    // Step 5 — Compute risk score
     const riskScore = calculateHospitalRisk(hospital as AnalyticsHospital);
 
-    // Step 5 — Score the hospital
+    // Step 6 — Score the hospital
     return scoreHospital(hospital, input, adjustedETA, projectedOccupancy, riskScore, candidates);
   });
 
-  // Step 6 — Rank hospitals by descending score
+  // Step 7 — Rank hospitals by descending score
   const ranked = rankHospitals(scoredCandidates);
 
   // Confidence computation

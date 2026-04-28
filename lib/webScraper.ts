@@ -29,7 +29,7 @@ export async function scrapeHospitalContext(
   try {
     const res = await fetch(url, {
       headers: { 'User-Agent': 'ICU-Recommendation-Engine/1.0' },
-      signal: AbortSignal.timeout(4000),
+      signal: AbortSignal.timeout(3000), // Reduced from 4000ms to 3000ms
     });
 
     if (!res.ok) throw new Error(`DDG API returned ${res.status}`);
@@ -82,7 +82,7 @@ async function scrapeBingSnippet(
           'Mozilla/5.0 (compatible; ICU-Bot/1.0)',
         Accept: 'text/html',
       },
-      signal: AbortSignal.timeout(5000),
+      signal: AbortSignal.timeout(4000), // Reduced from 5000ms to 4000ms
     });
 
     if (!res.ok) throw new Error(`Bing returned ${res.status}`);

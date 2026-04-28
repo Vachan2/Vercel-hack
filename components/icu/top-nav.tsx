@@ -1,11 +1,20 @@
 "use client"
 
 import { Activity, Radio, Shield, Wifi } from "lucide-react"
+import { useState, useEffect } from "react"
 
 export function TopNav() {
-  const now = new Date()
-  const timeStr = now.toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" })
-  const dateStr = now.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" })
+  const [mounted, setMounted] = useState(false)
+  const [time, setTime] = useState(new Date())
+
+  useEffect(() => {
+    setMounted(true)
+    const interval = setInterval(() => setTime(new Date()), 1000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const timeStr = mounted ? time.toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" }) : "00:00:00"
+  const dateStr = mounted ? time.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }) : "Loading..."
 
   return (
     <header
@@ -37,9 +46,9 @@ export function TopNav() {
               style={{ fontFamily: "var(--font-space-grotesk)", letterSpacing: "0.2em" }}
             >
               <span className="text-cyan-glow">ICU</span>{" "}
-              <span style={{ color: "oklch(0.85 0.04 220)" }}>Command Center</span>
+              <span className="text-[oklch(0.98_0_0)]">Command Center</span>
             </h1>
-            <p className="text-xs" style={{ color: "oklch(0.5 0.06 220)", letterSpacing: "0.08em" }}>
+            <p className="text-xs text-[oklch(0.70_0.04_220)]" style={{ letterSpacing: "0.08em" }}>
               AI Emergency Routing System v2.4.1
             </p>
           </div>
@@ -60,7 +69,7 @@ export function TopNav() {
           >
             {timeStr}
           </div>
-          <div className="text-xs" style={{ color: "oklch(0.5 0.06 220)" }}>{dateStr}</div>
+          <div className="text-xs text-[oklch(0.70_0.04_220)]">{dateStr}</div>
         </div>
       </div>
     </header>
@@ -93,7 +102,7 @@ function StatusBadge({
         className={`w-1.5 h-1.5 rounded-full ${pulse ? "animate-pulse-glow" : ""}`}
         style={{ background: c, boxShadow: `0 0 6px ${c}` }}
       />
-      <div style={{ color: "oklch(0.5 0.06 220)" }} className="text-xs tracking-wider">
+      <div style={{ color: "oklch(0.65 0.08 220)" }} className="text-xs tracking-wider">
         {label}
       </div>
       <div className="text-xs font-semibold" style={{ color: c }}>{value}</div>

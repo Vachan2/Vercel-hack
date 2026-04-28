@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter, Space_Grotesk } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
@@ -16,6 +16,9 @@ export const metadata: Metadata = {
   title: 'ICU Command Center — AI Emergency Routing',
   description: 'AI-powered ICU bed allocation and emergency routing dashboard for critical care operations.',
   generator: 'v0.app',
+}
+
+export const viewport: Viewport = {
   themeColor: '#0a0e1a',
 }
 

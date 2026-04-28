@@ -118,7 +118,7 @@ export function EmergencyForm({ onSubmit, loading }: Props) {
             Emergency Intake
           </span>
         </div>
-        <p className="text-xs" style={{ color: "oklch(0.5 0.06 220)" }}>
+        <p className="text-xs" style={{ color: "oklch(0.65 0.08 220)" }}>
           Enter patient details for AI routing analysis
         </p>
       </div>
@@ -135,7 +135,7 @@ export function EmergencyForm({ onSubmit, loading }: Props) {
             value={form.age}
             onChange={(e) => setForm({ ...form, age: e.target.value })}
             className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-            style={{ color: "oklch(0.9 0.02 210)" }}
+            style={{ color: "oklch(0.98 0 0)" }}
           />
         </FieldWrapper>
 
@@ -146,13 +146,13 @@ export function EmergencyForm({ onSubmit, loading }: Props) {
               value={form.emergencyType}
               onChange={(e) => setForm({ ...form, emergencyType: e.target.value })}
               className="w-full bg-transparent text-sm outline-none appearance-none cursor-pointer"
-              style={{ color: form.emergencyType ? "oklch(0.9 0.02 210)" : "oklch(0.45 0.04 220)" }}
+              style={{ color: form.emergencyType ? "oklch(0.98 0 0)" : "oklch(0.65 0.08 220)" }}
             >
               <option value="" disabled style={{ background: "oklch(0.12 0.02 230)", color: "oklch(0.55 0.06 220)" }}>
                 Select emergency type
               </option>
               {EMERGENCY_TYPES.map((t) => (
-                <option key={t} value={t} style={{ background: "oklch(0.12 0.02 230)", color: "oklch(0.9 0.02 210)" }}>
+                <option key={t} value={t} style={{ background: "oklch(0.12 0.02 230)", color: "oklch(0.98 0 0)" }}>
                   {t}
                 </option>
               ))}
@@ -190,7 +190,7 @@ export function EmergencyForm({ onSubmit, loading }: Props) {
                 />
                 <span
                   className="text-xs leading-tight"
-                  style={{ color: form.severity === s.value ? "oklch(0.9 0.02 210)" : "oklch(0.55 0.06 220)" }}
+                  style={{ color: form.severity === s.value ? "oklch(0.98 0 0)" : "oklch(0.65 0.08 220)" }}
                 >
                   {s.label}
                 </span>
@@ -206,13 +206,13 @@ export function EmergencyForm({ onSubmit, loading }: Props) {
               value={form.location}
               onChange={(e) => setForm({ ...form, location: e.target.value })}
               className="w-full bg-transparent text-sm outline-none appearance-none cursor-pointer"
-              style={{ color: form.location ? "oklch(0.9 0.02 210)" : "oklch(0.45 0.04 220)" }}
+              style={{ color: form.location ? "oklch(0.98 0 0)" : "oklch(0.65 0.08 220)" }}
             >
               <option value="" disabled style={{ background: "oklch(0.12 0.02 230)", color: "oklch(0.55 0.06 220)" }}>
                 Select locality
               </option>
               {LOCATIONS.map((l) => (
-                <option key={l} value={l} style={{ background: "oklch(0.12 0.02 230)", color: "oklch(0.9 0.02 210)" }}>
+                <option key={l} value={l} style={{ background: "oklch(0.12 0.02 230)", color: "oklch(0.98 0 0)" }}>
                   {l}
                 </option>
               ))}
@@ -229,7 +229,7 @@ export function EmergencyForm({ onSubmit, loading }: Props) {
             value={form.description}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
             className="w-full bg-transparent text-sm outline-none resize-none placeholder:text-muted-foreground leading-relaxed"
-            style={{ color: "oklch(0.9 0.02 210)" }}
+            style={{ color: "oklch(0.98 0 0)" }}
           />
         </FieldWrapper>
 
