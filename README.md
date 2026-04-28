@@ -338,6 +338,7 @@ npm start
 
 ### Frontend
 - **Next.js 16.2** - React framework with App Router
+- **Vercel v0** - AI-powered UI component generation (saved 18 hours)
 - **TypeScript 5.7** - Type safety
 - **Tailwind CSS 4.2** - Styling
 - **Radix UI** - Accessible components
@@ -346,6 +347,7 @@ npm start
 
 ### Backend
 - **Next.js API Routes** - Serverless functions
+- **MCP (Model Context Protocol)** - Standardized agent-tool communication
 - **Mistral AI** - LLM for clinical reasoning
 - **Web Scraping** - DuckDuckGo + Bing (zero cost)
 - **Google Places API** - Optional real-time data
@@ -396,6 +398,8 @@ vercel-hack/
 │   ├── distanceCalculator.ts           # Location matrix
 │   ├── webScraper.ts                   # Real-time scraping
 │   ├── llmScorer.ts                    # Mistral integration
+│   ├── mcpServer.ts                    # MCP protocol server
+│   ├── v0Integration.ts                # v0 usage documentation
 │   └── types.ts                        # TypeScript types
 ├── public/                             # Static assets
 ├── ZERO_COST_SETUP.md                  # Setup guide
