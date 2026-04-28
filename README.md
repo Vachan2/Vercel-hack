@@ -12,7 +12,7 @@
   
   **When every second counts, AI makes the difference.**
   
-  [Live Demo](#) • [Features](#-key-features) • [How It Works](#-how-it-works) • [Quick Start](#-quick-start)
+  • [Features](#-key-features) • [How It Works](#-how-it-works) • [Quick Start](#-quick-start)
 </div>
 
 ---
