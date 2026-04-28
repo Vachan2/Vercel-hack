@@ -33,14 +33,12 @@ export function predictHospitalLoad(input: PredictionInput): PredictionOutput {
     critical: 1.3,
   }[severityTrend];
 
-  // Emergency count impact (each emergency adds ~2-5% load)
+  // Emergency count impact (each emergency adds ~3% load)
   const emergencyImpact = emergencyCount * 3;
 
-  // Calculate projected occupancy
   let projectedOccupancy = currentOccupancy * timeMultiplier * severityImpact + emergencyImpact;
-  projectedOccupancy = Math.min(projectedOccupancy, 100); // Cap at 100%
+  projectedOccupancy = Math.min(projectedOccupancy, 100);
 
-  // Determine demand risk
   let demandRisk: 'low' | 'medium' | 'high' | 'critical';
   if (projectedOccupancy < 60) {
     demandRisk = 'low';

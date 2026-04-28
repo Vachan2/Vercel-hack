@@ -40,19 +40,15 @@ export function generateHospitalInsights(hospitals: Hospital[]): HospitalInsight
     };
   }
 
-  // Calculate total beds and occupancy
   const totalBeds = hospitals.reduce((sum, h) => sum + h.icuBeds, 0);
   const totalOccupied = hospitals.reduce(
     (sum, h) => sum + Math.round((h.occupancy / 100) * h.icuBeds),
     0
   );
   const availableCapacity = totalBeds - totalOccupied;
-
-  // Calculate average occupancy
   const averageOccupancy =
     hospitals.reduce((sum, h) => sum + h.occupancy, 0) / hospitals.length;
 
-  // Find highest risk hospital (highest occupancy)
   const highestRiskHospital = hospitals.reduce((highest, current) => {
     if (!highest || current.occupancy > highest.occupancy) {
       return current;
@@ -60,7 +56,6 @@ export function generateHospitalInsights(hospitals: Hospital[]): HospitalInsight
     return highest;
   }, hospitals[0]);
 
-  // Calculate network utilization
   const networkUtilization = (totalOccupied / totalBeds) * 100;
 
   return {
@@ -82,8 +77,7 @@ export function generateHospitalInsights(hospitals: Hospital[]): HospitalInsight
  */
 export function calculateHospitalRisk(hospital: Hospital): number {
   const occupancyRisk = hospital.occupancy;
-  const capacityRisk = hospital.icuBeds < 10 ? 20 : 0; // Small hospitals are riskier
-  
+  const capacityRisk = hospital.icuBeds < 10 ? 20 : 0;
   return Math.min(occupancyRisk + capacityRisk, 100);
 }
 

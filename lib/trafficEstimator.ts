@@ -22,8 +22,7 @@ export function estimateTrafficDelay(input: TrafficInput): TrafficOutput {
 
   // Base speed: 60 km/h for emergency vehicles
   const baseSpeed = 60;
-  
-  // Urgency affects how much traffic impacts the route
+
   // Critical emergencies can bypass more traffic
   const urgencyBypassFactor = {
     low: 1.0,
@@ -32,14 +31,11 @@ export function estimateTrafficDelay(input: TrafficInput): TrafficOutput {
     critical: 0.5,
   }[emergencyUrgency];
 
-  // Effective traffic multiplier after urgency bypass
   const effectiveTrafficMultiplier = 1 + (cityTrafficMultiplier - 1) * urgencyBypassFactor;
 
-  // Calculate adjusted ETA
   const baseETA = (distance / baseSpeed) * 60; // Convert to minutes
   const adjustedETA = Math.round(baseETA * effectiveTrafficMultiplier);
 
-  // Determine traffic risk based on delay
   const delayPercentage = ((adjustedETA - baseETA) / baseETA) * 100;
   let trafficRisk: 'low' | 'medium' | 'high' | 'critical';
 
